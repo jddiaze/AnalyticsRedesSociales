@@ -1,0 +1,98 @@
+---
+output:
+  html_document: default
+  pdf_document: default
+---
+
+<center> <h1>Analytics en Redes sociales - Fase 3</h1> </center>
+
+<center> <h3> Daniel Florez - Jeison Díaz - Juan Guerrero - Wilson Lopez</h3> </center>
+
+<br />
+
+#### Cargar las librerías
+
+Importar las librerías a usar.
+```{r,warning=FALSE,message=FALSE}
+library(rjson)
+library(tidyverse)
+library(sna)
+library(igraph)
+library(jsonlite)
+library(purrr)
+library(data.table)
+library(readxl)
+library(dplyr)
+```
+
+Cargar los datos iniciales de arcos y nodos
+```{r,warning=FALSE,message=FALSE}
+# Cargando los datos de arcos y nodos
+ubicacion_edges<-"Arcos.xlsx"
+arcos<-read_excel(ubicacion_edges)
+
+colnames(arcos)<-c("from","to")
+
+nodos_file <-"Nodos.xlsx"
+nodos <- read_excel(nodos_file)
+
+arcos <- arcos[!is.na(arcos$from), ]
+
+nodos_filtrados <- nodos %>%
+  filter(Id %in% arcos$from)
+
+arcos <- arcos %>%
+  filter(to %in% nodos_filtrados$Id & from %in% nodos_filtrados$Id)
+
+n_grafo <- graph_from_edgelist(as.matrix(arcos))
+
+numero_nodos <- vcount(n_grafo)
+numero_arcos <- ecount(n_grafo)
+
+print(paste("Número de nodos:", numero_nodos))
+print(paste("Número de arcos:", numero_arcos))
+
+
+```
+
+Como puede observar en la red, esta se compone de 649 nodos y 829 arcos.
+
+#### Modelo QAP
+
+```{r,warning=FALSE,message=FALSE}
+#Escriba su código aquí
+y<- as.matrix(as_adjacency_matrix(n_grafo))
+
+grado_total <- degree(n_grafo, mode = "all") 
+
+grado_total <- (grado_total-min(grado_total))/(max(grado_total)-min(grado_total))
+
+x1 <- matrix(NA,nrow(nodos),nrow(nodos))
+for(i in 1:nrow(nodos)){
+  for(j in 1:nrow(nodos)){
+    x1[i,j]<-1- abs(grado_total[i]-grado_total[j])
+  }
+}
+
+bet <- betweenness(n_grafo)
+
+bet <- (bet-min(bet))/(max(bet)-min(bet))
+
+x2 <- matrix(NA,nrow(nodos),nrow(nodos))
+for(i in 1:nrow(nodos)){
+  for(j in 1:nrow(nodos)){
+    x2[i,j]<-1-abs(bet[i]-bet[j])
+  }
+}
+```
+
+Finalmente, estimemos la regresión QAP con estas dos matrices.
+
+```{r,warning=FALSE,message=FALSE}
+# Estimar la regresión QAP con la función netlogit. Debido a que son varios nodos, reduciremos la cantidad de repeticiones a realizar.
+qap_fit <-netlogit(y,list(x2),rep = 50) 
+
+# Ver los resultados esperados al finalizar las matrices calculadas
+summary(qap_fit)
+```
+
