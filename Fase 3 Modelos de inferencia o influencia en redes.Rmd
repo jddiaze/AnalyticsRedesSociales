@@ -4,11 +4,15 @@ output:
   html_document: default
 ---
 
-<center> <h1>Analytics en Redes sociales - Fase 3</h1> </center>
+# Analytics en Redes sociales - Fase 3
 
-<center> <h3> Daniel Florez - Jeison Díaz - Juan Guerrero - Wilson Lopez</h3> </center>
+Daniel Florez - Jeison Díaz - Juan Guerrero - Wilson Lopez
 
 <br />
+
+El código se puede encontrar en: https://github.com/jddiaze/AnalyticsRedesSociales
+
+## Desarrollo
 
 #### Cargar las librerías
 
