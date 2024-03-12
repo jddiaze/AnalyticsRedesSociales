@@ -125,10 +125,3 @@ qap_fit <-netlogit(y,list(x1,x2,x3),rep = 10)
 summary(qap_fit)
 ```
 Se puede evidenciar que los atributos betweeness y Page Rank son significativos.
-
-#### Conclusiones
-En primer lugar, la significancia de "betweenness" indica que la centralidad de los nodos en la red, medida por la cantidad de intermediación que realizan, tiene un impacto estadísticamente significativo en el número de inversiones entre las organizaciones. Esto sugiere que identificar y apoyar organizaciones con una posición central en la red puede influir positivamente en la formación de conexiones e inversiones.
-
-En segundo lugar, la significancia de "Page Rank" indica que la importancia relativa de los nodos en función de su influencia global también es un factor relevante. Aquellas organizaciones con un alto "Page Rank" están más conectadas y tienen un mayor impacto en la red, lo que se traduce en una mayor probabilidad de recibir inversiones.
-
-En resumen, recomendamos a los fondos inversionistas considerar no solo la cantidad de conexiones de una organización, sino también su posición estratégica en términos de intermediación y su impacto global en la red. Invertir en organizaciones con una alta centralidad y una influencia significativa puede aumentar las posibilidades de éxito y maximizar el impacto de las inversiones en el contexto de esta red específica.
