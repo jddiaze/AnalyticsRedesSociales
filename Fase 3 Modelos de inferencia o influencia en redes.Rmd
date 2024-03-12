@@ -38,11 +38,11 @@ nodos <- read_excel(nodos_file)
 
 arcos <- arcos[!is.na(arcos$from), ]
 
-nodos_filtrados <- nodos %>%
+nodos <- nodos %>%
   filter(Id %in% arcos$from)
 
 arcos <- arcos %>%
-  filter(to %in% nodos_filtrados$Id & from %in% nodos_filtrados$Id)
+  filter(to %in% nodos$Id & from %in% nodos$Id)
 
 n_grafo <- graph_from_edgelist(as.matrix(arcos))
 
@@ -67,10 +67,16 @@ grado_total <- degree(n_grafo, mode = "all")
 
 grado_total <- (grado_total-min(grado_total))/(max(grado_total)-min(grado_total))
 
-x1 <- matrix(NA,nrow(nodos),nrow(nodos))
-for(i in 1:nrow(nodos)){
-  for(j in 1:nrow(nodos)){
-    x1[i,j]<-1- abs(grado_total[i]-grado_total[j])
+x1 <- matrix(NA, nrow = nrow(y), ncol = nrow(y))
+
+# Asignar nombres o índices de los nodos a las filas y columnas de x1
+rownames(x1) <- rownames(y)
+colnames(x1) <- colnames(y)
+
+# Llenar la matriz x1 con la similitud entre los grados normalizados de los nodos
+for (i in 1:nrow(y)) {
+  for (j in 1:nrow(y)) {
+    x1[i, j] <- 1 - abs(grado_total[i] - grado_total[j])
   }
 }
 
@@ -78,10 +84,33 @@ bet <- betweenness(n_grafo)
 
 bet <- (bet-min(bet))/(max(bet)-min(bet))
 
-x2 <- matrix(NA,nrow(nodos),nrow(nodos))
-for(i in 1:nrow(nodos)){
-  for(j in 1:nrow(nodos)){
-    x2[i,j]<-1-abs(bet[i]-bet[j])
+x2 <- matrix(NA, nrow = nrow(y), ncol = nrow(y))
+
+# Asignar nombres o índices de los nodos a las filas y columnas de x1
+rownames(x2) <- rownames(y)
+colnames(x2) <- colnames(y)
+
+# Llenar la matriz x1 con la similitud entre los grados normalizados de los nodos
+for (i in 1:nrow(y)) {
+  for (j in 1:nrow(y)) {
+    x2[i, j] <- 1 - abs(bet[i] - bet[j])
+  }
+}
+
+pr <- page_rank(n_grafo)$vector
+
+pr <- (pr-min(pr))/(max(pr)-min(pr))
+
+x3 <- matrix(NA, nrow = nrow(y), ncol = nrow(y))
+
+# Asignar nombres o índices de los nodos a las filas y columnas de x1
+rownames(x3) <- rownames(y)
+colnames(x3) <- colnames(y)
+
+# Llenar la matriz x1 con la similitud entre los grados normalizados de los nodos
+for (i in 1:nrow(y)) {
+  for (j in 1:nrow(y)) {
+    x3[i, j] <- 1 - abs(pr[i] - pr[j])
   }
 }
 ```
@@ -90,9 +119,9 @@ Finalmente, estimemos la regresión QAP con estas dos matrices.
 
 ```{r,warning=FALSE,message=FALSE}
 # Estimar la regresión QAP con la función netlogit. Debido a que son varios nodos, reduciremos la cantidad de repeticiones a realizar.
-qap_fit <-netlogit(y,list(x2),rep = 50) 
+qap_fit <-netlogit(y,list(x1,x2,x3),rep = 10) 
 
 # Ver los resultados esperados al finalizar las matrices calculadas
 summary(qap_fit)
 ```
-
+Se puede evidenciar que los atributos betweeness y Page Rank son significativos.
